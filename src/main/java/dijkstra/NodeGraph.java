@@ -1,9 +1,9 @@
-package ltm.doanltm.dijkstra;
+package dijkstra;
 
 import javax.swing.JPanel;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.ArrayList;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
 import org.graphstream.ui.swing_viewer.SwingViewer;
@@ -19,9 +19,9 @@ public class NodeGraph extends JPanel {
         }
     };
     private String[] path = {};
-    private HashMap<String, Integer> edges = new HashMap<>();
+    private ArrayList<MEdge> edges = new ArrayList<>();
 
-    public NodeGraph(String[] path, HashMap<String, Integer> edges) {
+    public NodeGraph(String[] path, ArrayList<MEdge> edges) {
         this.path = path;
         this.edges = edges;
 
@@ -36,14 +36,14 @@ public class NodeGraph extends JPanel {
         Graph graph = new SingleGraph("Node Graph", false, true);
 
         // Apply file graphstyle.css to graph
-        graph.setAttribute("ui.stylesheet", "url('src/main/java/ltm/doanltm/dijkstra/graphstyle.css')");
+        graph.setAttribute("ui.stylesheet", "url('src/main/java/dijkstra/graphstyle.css')");
 
         // Gender Edges & Nodes
-        for (String edge : edges.keySet()) {
-            Node a = graph.addNode(edge.charAt(0) + "");
-            Node b = graph.addNode(edge.charAt(1) + "");
-            Edge e = graph.addEdge(edge, a, b, true);
-            e.setAttribute("ui.label", edges.get(edge));
+        for (MEdge edge : edges) {
+            Node a = graph.addNode(edge.getSrc());
+            Node b = graph.addNode(edge.getDest());
+            Edge e = graph.addEdge(edge.getSrc() + edge.getDest(), a, b, true);
+            e.setAttribute("ui.label", edge.getWeight());
         }
 
         // Add label for each Node

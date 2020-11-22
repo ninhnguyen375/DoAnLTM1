@@ -13,7 +13,7 @@ node.active {
 }
 
 edge {
-    text-alignment: along;
+    text-alignment: above;
     text-style: bold;
     text-size: 15;
     text-background-mode: plain; 

@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package ltm.doanltm.dijkstra;
+package dijkstra;
 
-/**
- *
- * @author ninhn
- */
 public class MEdge {
     private String src;
     private String dest;
