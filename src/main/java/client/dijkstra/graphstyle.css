@@ -24,4 +24,5 @@ edge {
 
 edge.active {
     fill-color: red;
+    text-color: red;
 }

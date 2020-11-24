@@ -5,13 +5,6 @@
  */
 package client.CPUSchedule.Control;
 
-import client.CPUSchedule.Algorithm.CPUScheduler;
-import client.CPUSchedule.Algorithm.FirstComeFirstServe;
-import client.CPUSchedule.Algorithm.PriorityNonPreemptive;
-import client.CPUSchedule.Algorithm.PriorityPreemptive;
-import client.CPUSchedule.Algorithm.RoundRobin;
-import client.CPUSchedule.Algorithm.ShortestJobFirst;
-import client.CPUSchedule.Algorithm.ShortestRemainingTime;
 import client.CPUSchedule.DTO.Row;
 import client.CPUSchedule.App.CenterPanel;
 import static client.CPUSchedule.App.CenterPanel.convertResultAlgorithmToProcessResult;
@@ -25,6 +18,13 @@ import javax.swing.JOptionPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.gantt.GanttCategoryDataset;
+import client.CPUSchedule.Algorithms.CPUScheduler;
+import client.CPUSchedule.Algorithms.FirstComeFirstServe;
+import client.CPUSchedule.Algorithms.PriorityNonPreemptive;
+import client.CPUSchedule.Algorithms.PriorityPreemptive;
+import client.CPUSchedule.Algorithms.RoundRobin;
+import client.CPUSchedule.Algorithms.ShortestJobFirst;
+import client.CPUSchedule.Algorithms.ShortestRemainingTime;
 
 /**
  *

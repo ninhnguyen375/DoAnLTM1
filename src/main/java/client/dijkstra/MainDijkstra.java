@@ -1,5 +1,6 @@
 package client.dijkstra;
 
+import client.Client;
 import com.google.gson.Gson;
 import es.usc.citius.hipster.algorithm.Algorithm;
 import es.usc.citius.hipster.algorithm.Hipster;
@@ -13,12 +14,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,15 +27,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileSystemView;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXTextField;
 
 public class MainDijkstra extends JPanel {
 
-    private Socket socket = null;
-    private DataOutputStream out;
-    private DataInputStream in;
     private Gson gson = new Gson();
     private String[] path = {};
     private String[] emptyPath = {};
@@ -69,16 +62,8 @@ public class MainDijkstra extends JPanel {
     public JButton exportImageButton = new JButton("Export to Image");
     // --- Right side >>END
 
-    public MainDijkstra(Socket socket) {
-        try {
-            this.socket = socket;
-            out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
-
-            init();
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }
+    public MainDijkstra() {
+        init();
     }
 
     private void makePanelImage(Component panel, int width, int height, String pathname) {
@@ -372,12 +357,12 @@ public class MainDijkstra extends JPanel {
                 return;
             }
 
-            out.writeUTF("get-shortest-path-" + startNode + "-" + endNode);
-            out.flush();
-            out.writeUTF(gson.toJson(this.edges));
-            out.flush();
+            Client.out.writeUTF("get-shortest-path-" + startNode + "-" + endNode);
+            Client.out.flush();
+            Client.out.writeUTF(gson.toJson(this.edges));
+            Client.out.flush();
 
-            String result = in.readUTF();
+            String result = Client.in.readUTF();
 
             if (result.contains("error")) {
                 this.path = this.emptyPath;

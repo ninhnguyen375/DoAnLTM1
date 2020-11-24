@@ -1,14 +1,12 @@
-package client.CPUSchedule.Algorithm;
+package client.CPUSchedule.Algorithms;
 
 
 import client.CPUSchedule.DTO.Row;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class ShortestRemainingTime extends CPUScheduler
+public class ShortestJobFirst extends CPUScheduler
 {
     @Override
     public void process()
@@ -59,57 +57,22 @@ public class ShortestRemainingTime extends CPUScheduler
             });
             
             Row row = availableRows.get(0);
-            this.getTimeline().add(new Event(row.getProcessName(), time, ++time));
-            row.setBurstTime(row.getBurstTime() - 1);
+            this.getTimeline().add(new Event(row.getProcessName(), time, time + row.getBurstTime()));
+            time += row.getBurstTime();
             
-            if (row.getBurstTime() == 0)
+            for (int i = 0; i < rows.size(); i++)
             {
-                for (int i = 0; i < rows.size(); i++)
+                if (rows.get(i).getProcessName().equals(row.getProcessName()))
                 {
-                    if (rows.get(i).getProcessName().equals(row.getProcessName()))
-                    {
-                        rows.remove(i);
-                        break;
-                    }
+                    rows.remove(i);
+                    break;
                 }
             }
         }
-        
-        for (int i = this.getTimeline().size() - 1; i > 0; i--)
-        {
-            List<Event> timeline = this.getTimeline();
-            
-            if (timeline.get(i - 1).getProcessName().equals(timeline.get(i).getProcessName()))
-            {
-                timeline.get(i - 1).setFinishTime(timeline.get(i).getFinishTime());
-                timeline.remove(i);
-            }
-        }
-        
-        Map map = new HashMap();
         
         for (Row row : this.getRows())
         {
-            map.clear();
-            
-            for (Event event : this.getTimeline())
-            {
-                if (event.getProcessName().equals(row.getProcessName()))
-                {
-                    if (map.containsKey(event.getProcessName()))
-                    {
-                        int w = event.getStartTime() - (int) map.get(event.getProcessName());
-                        row.setWaitingTime(row.getWaitingTime() + w);
-                    }
-                    else
-                    {
-                        row.setWaitingTime(event.getStartTime() - row.getArrivalTime());
-                    }
-                    
-                    map.put(event.getProcessName(), event.getFinishTime());
-                }
-            }
-            
+            row.setWaitingTime(this.getEvent(row).getStartTime() - row.getArrivalTime());
             row.setTurnaroundTime(row.getWaitingTime() + row.getBurstTime());
         }
     }

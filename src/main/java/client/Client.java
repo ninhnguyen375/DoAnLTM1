@@ -5,6 +5,8 @@ import client.dijkstra.Constant;
 import client.dijkstra.MainDijkstra;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -12,9 +14,9 @@ import javax.swing.UIManager;
 
 public class Client {
 
-    private Socket socket = null;
-    BufferedWriter out = null;
-    BufferedReader in = null;
+    public static Socket socket = null;
+    public static DataOutputStream out;
+    public static DataInputStream in;
     BufferedReader stdIn = null;
 
     public Client(String address, int port) throws Exception {
@@ -22,10 +24,13 @@ public class Client {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         socket = new Socket(address, port);
+        out = new DataOutputStream(socket.getOutputStream());
+        in = new DataInputStream(socket.getInputStream());
+
         System.out.println("Connected");
 
         // Dijstra main panel
-        MainDijkstra dijkstraPanel = new MainDijkstra(socket);
+        MainDijkstra dijkstraPanel = new MainDijkstra();
         MainPanel fCFSPanel = new MainPanel();
 
         // JTabbedPane
@@ -34,7 +39,7 @@ public class Client {
         tabs.setTitleAt(0, "Dijkstra");
         tabs.add(fCFSPanel);
         tabs.setTitleAt(1, "CPU schedule");
-        
+
         // Show on frame
         JFrame frame = new JFrame();
         frame.add(tabs);

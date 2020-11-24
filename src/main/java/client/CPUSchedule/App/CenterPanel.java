@@ -5,8 +5,8 @@
  */
 package client.CPUSchedule.App;
 
-import client.CPUSchedule.Algorithm.CPUScheduler;
-import client.CPUSchedule.Algorithm.Event;
+import client.CPUSchedule.Algorithms.CPUScheduler;
+import client.CPUSchedule.Algorithms.Event;
 import client.CPUSchedule.Constant.Constant;
 import client.CPUSchedule.DTO.ProcessResult;
 import java.awt.Dimension;
@@ -124,11 +124,13 @@ public final class CenterPanel extends JPanel {
 
     public static ArrayList<ProcessResult> convertResultAlgorithmToProcessResult(CPUScheduler object) {
         ArrayList<ProcessResult> arr = new ArrayList<>();
+        
         for (int i = 0; i < object.getTimeline().size(); i++) {
             List<Event> timeline = object.getTimeline();
             ProcessResult o = new ProcessResult(timeline.get(i).getProcessName(), timeline.get(i).getStartTime(), timeline.get(i).getFinishTime());
             arr.add(o);
         }
+        
         return arr;
     }
 

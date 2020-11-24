@@ -54,65 +54,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
         labelTitleOption = new JLabel("Import By File");
         buttonChooseFile = new JButton("Choose file here");
         buttonChooseFile.addActionListener((var arg0) -> {
-            JFileChooser fileChooser = new JFileChooser(new File(Constant.testFilesPath));
-            
-            int returnVal = fileChooser.showOpenDialog(null);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                //This is where a real application would open the file.
-                System.out.println(file.getName());
-                ArrayList<Row> arr = new ArrayList<>();
-                try {
-                    Scanner scanner = new Scanner(file);
-                    while (scanner.hasNext()) {
-                        String s = scanner.nextLine();
-                        Pattern p = Pattern.compile("^\\w+ \\d \\d$");
-                        Matcher matcher = p.matcher(s);
-
-                        if (matcher.find()) {
-                            String[] splits = s.split(" ");
-                            Row row = new Row(splits[0], Integer.parseInt(splits[1]), Integer.parseInt(splits[2]));
-                            arr.add(row);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Wrong content file", "Error File", JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
-                    }
-
-                    // validate file
-                    // duplicated process
-                    for (int i = 0; i < arr.size(); i++) {
-                        int found = -1;
-                        for (int j = 0; j < Constant.arrayListProcess.size(); j++) {
-                            if (Constant.arrayListProcess.get(j).getProcessName().equals(arr.get(i).getProcessName())) {
-                                found = j;
-                                break;
-                            } else {
-                                continue;
-                            }
-                        }
-
-                        if (found == -1) {
-                            // Add new
-                            Constant.arrayListProcess.add(arr.get(i));
-                        } else {
-                            // Update that value
-                            Constant.arrayListProcess.set(found, arr.get(i));
-                        }
-                    }
-
-                    // Update graph
-                    ProcessTablePanelAction.renderGraph(null);
-                    // Update table
-                    ProcessTablePanelAction.updateTable();
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(EastPanel_AddProcessPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            } else {
-                System.out.println("Canceled by user");
-            }
+            handleClickAddProcess();
         });
         labelProcessName = new JLabel("Process Name");
         labelProcessTime = new JLabel("Process Time (ms)");
@@ -195,5 +137,68 @@ public class EastPanel_AddProcessPanel extends JPanel {
         gbc.gridwidth = 2;
         gbc.insets = new Insets(5, 5, 5, 5);
         add(buttonAddProcess, gbc);
+    }
+
+    private void handleClickAddProcess() {
+        JFileChooser fileChooser = new JFileChooser(new File(Constant.testFilesPath));
+
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            ArrayList<Row> arr = new ArrayList<>();
+            try {
+                Scanner scanner = new Scanner(file);
+
+                while (scanner.hasNext()) {
+                    String line = scanner.nextLine();
+                    Pattern p = Pattern.compile("^\\w+ \\d \\d$");
+                    Matcher matcher = p.matcher(line);
+
+                    if (matcher.find()) {
+                        String[] values = line.split(" ");
+                        
+                        String processName = values[0];
+                        int arrivalTime = Integer.parseInt(values[1]);
+                        int burstTime = Integer.parseInt(values[2]);
+
+                        arr.add(new Row(processName, arrivalTime, burstTime));
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Wrong content file", "Error File", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    }
+                }
+
+                // validate file
+                // duplicated process
+                for (int i = 0; i < arr.size(); i++) {
+                    int found = -1;
+                    for (int j = 0; j < Constant.arrayListProcess.size(); j++) {
+                        if (Constant.arrayListProcess.get(j).getProcessName().equals(arr.get(i).getProcessName())) {
+                            found = j;
+                            break;
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if (found == -1) {
+                        // Add new
+                        Constant.arrayListProcess.add(arr.get(i));
+                    } else {
+                        // Update that value
+                        Constant.arrayListProcess.set(found, arr.get(i));
+                    }
+                }
+
+                // Update graph
+                ProcessTablePanelAction.renderGraph(null);
+                // Update table
+                ProcessTablePanelAction.updateTable();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(EastPanel_AddProcessPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            System.out.println("Canceled by user");
+        }
     }
 }

@@ -1,4 +1,4 @@
-package client.CPUSchedule.Algorithm;
+package client.CPUSchedule.Algorithms;
 
 
 public class Event
