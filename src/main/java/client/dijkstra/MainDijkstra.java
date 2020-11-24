@@ -16,6 +16,7 @@ import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,55 +33,36 @@ import org.jdesktop.swingx.JXTextField;
 
 public class MainDijkstra extends JPanel {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     private String[] path = {};
-    private String[] emptyPath = {};
+    private final String[] emptyPath = {};
     private ArrayList<MEdge> edges = new ArrayList<>();
     boolean isValid = true;
 
     // --- Left side
     public JPanel nodeGraphPanel = new JPanel();
 
-    // --- Right side >>START
+    // --- Right side
     public JPanel rightSidePanel = new JPanel();
-
+    // Add node form
     public JPanel panelGroupInputEdge = new JPanel(new GridBagLayout());
     public JXTextField inputSrcNode = new JXTextField("Source Node");
     public JXTextField inputDestNode = new JXTextField("Dest Node");
     public JXTextField inputEdgeWeight = new JXTextField("Weight");
     public JButton enterButton = new JXButton("ADD");
-
+    // Upload file form
     public JPanel panelUploadFile = new JPanel();
     public JLabel fileNameLabel = new JLabel();
     public JButton chooseFileButton = new JButton("Choose File");
-
+    // Find shortest path form
     public JPanel panelFindPath = new JPanel(new GridBagLayout());
     public JXTextField inputStartNode = new JXTextField("start");
     public JXTextField inputEndNode = new JXTextField("end");
     public JButton findPathButton = new JButton("Find shortest path");
-
+    // Export image button
     public JButton exportImageButton = new JButton("Export to Image");
-    // --- Right side >>END
 
     public MainDijkstra() {
-        init();
-    }
-
-    private void makePanelImage(Component panel, int width, int height, String pathname) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = image.createGraphics();
-        panel.paint(g2);
-        try {
-            ImageIO.write(image, "png", new File(pathname));
-            System.out.println("Panel saved as Image.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public MainDijkstra(String[] path, ArrayList<MEdge> edges) {
-        this.path = path;
-        this.edges = edges;
         init();
     }
 
@@ -189,6 +171,19 @@ public class MainDijkstra extends JPanel {
         this.add(rightSidePanel, new GridBagConstraints());
     }
 
+    private void makePanelImage(Component panel, int width, int height, String pathname) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = image.createGraphics();
+        panel.paint(g2);
+        try {
+            ImageIO.write(image, "png", new File(pathname));
+            System.out.println("Panel saved as Image.");
+        } catch (IOException e) {
+            System.out.println("Make image fail");
+            System.out.println(e);
+        }
+    }
+
     private void handleClickExportImage() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Specify a file to save");
@@ -258,7 +253,7 @@ public class MainDijkstra extends JPanel {
 
                 // regenerate graph layout
                 regenerateGraph();
-            } catch (Exception ex) {
+            } catch (FileNotFoundException ex) {
                 System.out.println("Upload fail");
                 System.out.println(ex);
             }
@@ -289,7 +284,7 @@ public class MainDijkstra extends JPanel {
                 int weight = 0;
                 try {
                     weight = Integer.parseInt(items[2]);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null, "error: invalid file(weight must be a number)");
                     // reset graph
                     this.edges = new ArrayList<>();
@@ -357,25 +352,24 @@ public class MainDijkstra extends JPanel {
                 return;
             }
 
-            Client.out.writeUTF("get-shortest-path-" + startNode + "-" + endNode);
-            Client.out.flush();
-            Client.out.writeUTF(gson.toJson(this.edges));
-            Client.out.flush();
+            // call get shortest path
+            Client.socketSend("get-shortest-path-" + startNode + "-" + endNode);
+            // then send the list current edges
+            Client.socketSend(gson.toJson(this.edges));
 
-            String result = Client.in.readUTF();
+            String result = Client.socketReadLine();
 
             if (result.contains("error")) {
                 this.path = this.emptyPath;
                 regenerateGraph();
                 JOptionPane.showMessageDialog(null, result);
             } else {
-                this.path = gson.fromJson(result, String[].class);
+                String[] shortestPath = gson.fromJson(result, String[].class);
+                this.path = shortestPath;
                 regenerateGraph();
             }
-
         } catch (Exception ex) {
-            this.path = this.emptyPath;
-            regenerateGraph();
+            JOptionPane.showMessageDialog(null, "Not have any path");
             System.out.println(ex);
         }
     }
