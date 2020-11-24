@@ -1,5 +1,6 @@
-package dijkstra;
+package client.dijkstra;
 
+import client.dijkstra.Constant;
 import javax.swing.JPanel;
 
 import java.awt.*;
@@ -36,7 +37,7 @@ public class NodeGraph extends JPanel {
         Graph graph = new SingleGraph("Node Graph", false, true);
 
         // Apply file graphstyle.css to graph
-        graph.setAttribute("ui.stylesheet", "url('src/main/java/dijkstra/graphstyle.css')");
+        graph.setAttribute("ui.stylesheet", "url('src/main/java/client/dijkstra/graphstyle.css')");
 
         // Gender Edges & Nodes
         for (MEdge edge : edges) {

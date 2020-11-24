@@ -1,4 +1,4 @@
-package dijkstra;
+package client.dijkstra;
 
 public class MEdge {
     private String src;

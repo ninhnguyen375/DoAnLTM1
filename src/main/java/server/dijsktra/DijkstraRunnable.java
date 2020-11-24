@@ -1,4 +1,4 @@
-package server;
+package server.dijsktra;
 
 import com.google.gson.Gson;
 import es.usc.citius.hipster.algorithm.Algorithm;

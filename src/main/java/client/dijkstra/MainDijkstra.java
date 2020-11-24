@@ -1,4 +1,4 @@
-package dijkstra;
+package client.dijkstra;
 
 import com.google.gson.Gson;
 import es.usc.citius.hipster.algorithm.Algorithm;
@@ -16,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
@@ -28,7 +27,6 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -263,7 +261,7 @@ public class MainDijkstra extends JPanel {
     }
 
     private void handleClickChooseFileButton() {
-        JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        JFileChooser chooser = new JFileChooser(new File(Constant.testFilesPath));
 
         int r = chooser.showOpenDialog(null);
 

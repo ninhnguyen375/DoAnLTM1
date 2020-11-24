@@ -1,4 +1,4 @@
-package dijkstra;
+package client.dijkstra;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
 import es.usc.citius.hipster.algorithm.Hipster;
