@@ -5,12 +5,21 @@
  */
 package client.CPUSchedule.App;
 
+import client.CPUSchedule.Algorithms.CPUScheduler;
+import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
-import client.CPUSchedule.Control.ProcessTablePanelAction;
+import static client.CPUSchedule.Control.ProcessTablePanelAction.renderDefaultGraph;
+import static client.CPUSchedule.Control.ProcessTablePanelAction.renderGraph;
+import client.Client;
+import com.google.gson.Gson;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -39,7 +48,25 @@ public class EastPanel_ChooseTypeAlgorithmPanel extends JPanel {
         typeAlgorithmArr.addItem("PP");
         typeAlgorithmArr.addItem("PNP");
         typeAlgorithmArr.addItem("SRT");
-        typeAlgorithmArr.addItemListener(new ProcessTablePanelAction.HandleSelectTypeAction());
+        typeAlgorithmArr.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent item) {
+                Constant.defaultTypeAlgorithm = item.getItem().toString();
+
+                if (!Constant.defaultTypeAlgorithm.isEmpty()) {
+                    try {
+                        Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
+                        Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
+                        ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);
+                        renderGraph(result);
+                    } catch (Exception ex) {
+                        Logger.getLogger(EastPanel_ChooseTypeAlgorithmPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    renderDefaultGraph();
+                }
+            }
+        });
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

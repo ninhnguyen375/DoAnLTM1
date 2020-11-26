@@ -9,6 +9,7 @@ package client.CPUSchedule.DTO;
  *
  * @author Ram4GB
  */
+// Dùng để bỏ render ra chart
 public class ProcessResult {
 
     private String processName;

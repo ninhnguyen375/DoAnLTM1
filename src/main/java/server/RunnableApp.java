@@ -1,5 +1,8 @@
 package server;
 
+import client.CPUSchedule.App.ExecuteCPUAlgorythm;
+import client.CPUSchedule.DTO.ProcessResult;
+import client.CPUSchedule.DTO.Row;
 import server.dijsktra.*;
 import com.google.gson.Gson;
 import java.io.DataInputStream;
@@ -15,6 +18,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import javax.crypto.Cipher;
@@ -108,6 +112,15 @@ public class RunnableApp implements Runnable {
                     } else {
                         socketSend("error: Your nodes invalid or does not have a path.");
                     }
+                } else if (input.contains("get-algorythm")) { // get-algorythm-name_of_algorythm
+                    // tìm tên thuật toán
+                    String algorithm = input.split("-")[2];
+                    System.out.println(algorithm);
+                    // để cho hàm xử lý của server xử lý
+                    ExecuteCPUAlgorythm executeCPUAlgorythm = new ExecuteCPUAlgorythm(socketReadLine(), algorithm);
+                    // .execute sẽ trả về CPUSChedule. Client sẽ nhận và xử lý thành dạng dataset để hiện thị chart
+                    // trả kết quả về dưới client dãy này để render ra graph
+                    socketSend(gson.toJson(executeCPUAlgorythm.execute()));
                 }
 
                 if (input.equals("bye")) {
