@@ -292,7 +292,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
 
                 // Update graph
                 // Gửi yêu cầu cho server
-                Client.socketSend("get-algorythm" + Constant.defaultTypeAlgorithm);
+                Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
                 Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
                 // Nhận kết quả của server
                 ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);

@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -16,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class RunnableApp implements Runnable {
     boolean isValid = true;
     public static DataInputStream in;
     public static DataOutputStream out;
+    private final int keySize = 2048;
 
     // server keys
     private static PublicKey serverPublicKey;
@@ -46,7 +49,7 @@ public class RunnableApp implements Runnable {
 
         // Gen public and private keys of current client connected
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048, new SecureRandom());
+        keyPairGenerator.initialize(keySize, new SecureRandom());
         KeyPair kp = keyPairGenerator.genKeyPair();
         serverPublicKey = kp.getPublic();
         serverPrivateKey = kp.getPrivate();
@@ -56,35 +59,77 @@ public class RunnableApp implements Runnable {
         out.flush();
 
         // Get client public key
-        byte[] publicKeyBytes = new byte[2048];
-        in.read(publicKeyBytes, 0, 2048);
+        byte[] publicKeyBytes = new byte[keySize];
+        in.read(publicKeyBytes, 0, keySize);
         X509EncodedKeySpec ks = new X509EncodedKeySpec(publicKeyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         // Save
         clientPublicKey = kf.generatePublic(ks);
     }
 
-    public String socketReadLine() throws Exception {
-        String line = in.readUTF();
+    public static String socketReadLine() throws Exception {
+        String result = "";
 
-        Cipher c = Cipher.getInstance("RSA");
-        c.init(Cipher.DECRYPT_MODE, serverPrivateKey);
+        // Lấy tổng số block cần phải nhận
+        int blockCount = in.readInt();
 
-        byte decryptOut[] = c.doFinal(Base64.getDecoder().decode(line));
+        // Lấy tất cả các block
+        for (int i = 0; i < blockCount; i++) {
+            String line = in.readUTF();
 
-        return new String(decryptOut);
+            // Phiên dịch block
+            Cipher c = Cipher.getInstance("RSA");
+            c.init(Cipher.DECRYPT_MODE, serverPrivateKey);
+            byte decryptOut[] = c.doFinal(Base64.getDecoder().decode(line));
+
+            result += new String(decryptOut);
+        }
+
+        System.out.println("socketReadline:" + result);
+        return result;
     }
 
     public static void socketSend(String line) throws Exception {
-        // send text to client -> using clientPublicKey
+        // Dùng clientPublicKey để mã hóa chuỗi gửi cho client
         Cipher c = Cipher.getInstance("RSA");
         c.init(Cipher.ENCRYPT_MODE, clientPublicKey);
 
-        byte encryptOut[] = c.doFinal(line.getBytes());
-        String strEncrypt = Base64.getEncoder().encodeToString(encryptOut);
+        // Lấy độ dài bit của public key
+        final RSAPublicKey rsapub = (RSAPublicKey) clientPublicKey;
+        int keyBitLength = rsapub.getModulus().bitLength();
 
-        out.writeUTF(strEncrypt);
+        byte[] lineBytes = line.getBytes();
+
+        // Dộ dài mã hóa hợp lệ của RSA
+        int validSize = keyBitLength / 8 - 11;
+
+        // Chia gửi thành từng block theo độ dài hợp lệ
+        int blockCount = (int) Math.ceil((float) lineBytes.length / validSize);
+        int remaining = line.getBytes().length;
+
+        // Gửi tổng số block cho client
+        out.writeInt(blockCount);
         out.flush();
+
+        // Gửi từng block theo kích thước hợp lệ
+        ByteBuffer bb = ByteBuffer.wrap(lineBytes);
+        for (int i = 0; i < blockCount; i++) {
+
+            // lấy kích thước thích hợp nhỏ nhất
+            int minLength = Math.min(validSize, remaining);
+            remaining -= minLength;
+
+            // lấy giá trị cho block
+            byte[] block = new byte[minLength];
+            bb.get(block, 0, minLength);
+
+            // Mã hóa và gửi đi
+            byte encryptOut[] = c.doFinal(block);
+            String strEncrypt = Base64.getEncoder().encodeToString(encryptOut);
+
+            out.writeUTF(strEncrypt);
+            out.flush();
+        }
     }
 
     @Override
