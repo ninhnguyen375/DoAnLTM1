@@ -5,176 +5,117 @@
  */
 package client.CPUSchedule.Control;
 
-import client.CPUSchedule.DTO.Row;
-import client.CPUSchedule.App.CenterPanel;
-import static client.CPUSchedule.App.CenterPanel.convertResultAlgorithmToProcessResult;
+import client.CPUSchedule.Algorithms.Event;
+import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import javax.swing.JOptionPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.gantt.GanttCategoryDataset;
-import client.CPUSchedule.Algorithms.CPUScheduler;
-import client.CPUSchedule.Algorithms.FirstComeFirstServe;
-import client.CPUSchedule.Algorithms.PriorityNonPreemptive;
-import client.CPUSchedule.Algorithms.PriorityPreemptive;
-import client.CPUSchedule.Algorithms.RoundRobin;
-import client.CPUSchedule.Algorithms.ShortestJobFirst;
-import client.CPUSchedule.Algorithms.ShortestRemainingTime;
+import client.CPUSchedule.DTO.ProcessResult;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.labels.IntervalCategoryToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.GanttRenderer;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.gantt.Task;
+import org.jfree.data.gantt.TaskSeries;
+import org.jfree.data.gantt.TaskSeriesCollection;
+import org.jfree.data.time.SimpleTimePeriod;
 
 /**
  *
  * @author Ram4GB
  */
+// Tất cả hàm xử lý vẽ biểu đồ năm ở ngay chô này
 public class ProcessTablePanelAction {
 
-    public static void renderGraph(String algorithmName) {
-        // Implement
-
-        CPUScheduler algorithm = null;
-
-        if (algorithmName == null) {
-            algorithmName = Constant.defaultTypeAlgorithm;
-        }
-
-        if (algorithmName.equals("FCFS")) {
-            algorithm = new FirstComeFirstServe();
-        } else if (algorithmName.equals("SJF")) {
-            algorithm = new ShortestJobFirst();
-        } else if (algorithmName.equals("RR")) {
-            algorithm = new RoundRobin();
-        } else if (algorithmName.equals("PP")) {
-            algorithm = new PriorityPreemptive();
-        } else if (algorithmName.equals("PNP")) {
-            algorithm = new PriorityNonPreemptive();
-        } else if (algorithmName.equals("SRT")) {
-            algorithm = new ShortestRemainingTime();
-        } else {
-            // default
-            algorithm = new FirstComeFirstServe();
-        }
-
-        if (Constant.arrayListProcess.size() > 0 && algorithm != null) {
-            // add process to this algoithm and resolve it
-            for (int i = 0; i < Constant.arrayListProcess.size(); i++) {
-                algorithm.add(Constant.arrayListProcess.get(i));
-            }
-
-            algorithm.process();
-
-            Constant.centerPanel.removeAll();
-
-            // Draw graph
-            GanttCategoryDataset dataset;
-            dataset = CenterPanel.createDataset(convertResultAlgorithmToProcessResult(algorithm));
-            JFreeChart chart = CenterPanel.createChart(dataset);
-            Constant.panel = new ChartPanel(chart);
-            Constant.panel.setPreferredSize(new Dimension(Constant.WIDTH_CENTER_PANEL, Constant.HIGHT_PANEL));
-            Constant.centerPanel.add(Constant.panel);
-
-            // When you add all component, this time to show it
-            // Constant.centerPanel.removeAll();
-            // Constant.centerPanel.validate();
-            // Constant.centerPanel.repaint();
-            // Add Component
-            // => This case do not working
-            // Do it like this code
-            Constant.centerPanel.validate();
-            Constant.centerPanel.repaint();
-        }
-    }
-
-    public static void renderDefaultGraph() {
+    public static void renderGraph(ResultAfterExecuteAlgorithm resultAfterExecuteAlgorithm) {
         Constant.centerPanel.removeAll();
+        // Vẽ biểu đồ
+        // Cái này là làm theo documentation
+        // biến đổi kết quả thuật toán trả về phụ hợp để bỏ vào chart
+        GanttCategoryDataset dataset;
+        // Chuyển về dạng dataset
+        // ArrayList<ResultAfterExecuteAlgorithm> -> ArrayList<ProcessResult> -> dataset
+        dataset = createDataset(convertResultAlgorithmToProcessResult(resultAfterExecuteAlgorithm));
+        // Tạo chart
+        JFreeChart chart = createChart(dataset);
+        Constant.panel = new ChartPanel(chart);
+        Constant.panel.setPreferredSize(new Dimension(Constant.WIDTH_CENTER_PANEL, Constant.HIGHT_PANEL));
+        Constant.centerPanel.add(Constant.panel);
+
+        // When you add all component, this time to show it
+        // Constant.centerPanel.removeAll();
+        // Constant.centerPanel.validate();
+        // Constant.centerPanel.repaint();
+        // Add Component
+        // => This case do not working
+        // Do it like this code
         Constant.centerPanel.validate();
         Constant.centerPanel.repaint();
     }
 
-    public static class AddProcessAction implements ActionListener {
+    // chuyển đổi kết quả của algorithm sang dạng object cần xài
+    // return ArrayList<ProcessResult>
+    public static ArrayList<ProcessResult> convertResultAlgorithmToProcessResult(ResultAfterExecuteAlgorithm resultAfterExecuteAlgorithm) {
+        ArrayList<ProcessResult> arr = new ArrayList<>();
 
-        @Override
-        public void actionPerformed(ActionEvent arg0) {
-            String processName = Constant.textFieldProcessName.getText();
-            String processTime = Constant.textFieldProcessTime.getText();
-            String processTimeStart = Constant.textFieldProcessTimeStart.getText();
-
-            if (processName.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please enter Process Name");
-            } else if (processTime.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please enter Process Time");
-            } else if (processTime.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please enter Process Time Start");
-
-            } else {
-                Row row = new Row(processName,
-                        Integer.parseInt(processTimeStart),
-                        Integer.parseInt(processTime)
-                );
-
-                int index = -1;
-                for (int i = 0; i < Constant.arrayListProcess.size(); i++) {
-                    if (row.getProcessName().equals(Constant.arrayListProcess.get(i).getProcessName())) {
-                        index = i;
-                        break;
-                    } else {
-                        continue;
-                    }
-                }
-
-                if (index != -1) {
-                    int option = JOptionPane.showConfirmDialog(null, "Your process is duplicated. Do you want to rewrite it?", "Warning", JOptionPane.YES_NO_OPTION);
-                    // Ok 0
-                    // No 1
-                    // Close -1
-
-                    System.out.println(option);
-
-                    if (option == -1) {
-                        // keep it and do nothing
-                    } else if (option == 0) {
-                        // update
-                        Constant.arrayListProcess.set(index, row);
-                        renderGraph(Constant.defaultTypeAlgorithm);
-                        Constant.textFieldProcessName.setText("");
-                        Constant.textFieldProcessTime.setText("");
-                        Constant.textFieldProcessTimeStart.setText("");
-                        updateTable();
-                    } else if (option == 1) {
-                        // keep it and do nothing
-                    }
-                } else {
-                    Constant.arrayListProcess.add(row);
-                    Constant.textFieldProcessName.setText("");
-                    Constant.textFieldProcessTime.setText("");
-                    Constant.textFieldProcessTimeStart.setText("");
-                    // Option 1 to update
-                    updateTable();
-                    // Option 2 to update
-                    // Constant.defaultTableModel.addRow(new Object[]{processName, processTime, processTimeStart});
-                    // Constant.defaultTableModel.fireTableDataChanged();
-                    renderGraph(Constant.defaultTypeAlgorithm);
-                }
-            }
-
+        for (int i = 0; i < resultAfterExecuteAlgorithm.getTimeline().size(); i++) {
+            ArrayList<Event> timeline = resultAfterExecuteAlgorithm.getTimeline();
+            ProcessResult o = new ProcessResult(timeline.get(i).getProcessName(),
+                    timeline.get(i).getStartTime(),
+                    timeline.get(i).getFinishTime());
+            arr.add(o);
         }
+
+        System.out.println("time line" + resultAfterExecuteAlgorithm.getTimeline().size());
+
+        return arr;
     }
 
-    public static class HandleSelectTypeAction implements ItemListener {
+    // Tạo chart từ
+    public static JFreeChart createChart(final GanttCategoryDataset dataset) {
+        final JFreeChart chart = ChartFactory.createGanttChart(
+                "Gantt Chart", // chart title
+                "Process", // domain axis label
+                "TIME (ms)", // range axis label
+                dataset, // data
+                true, // include legend
+                true, // tooltips
+                false // urls
+        );
 
-        @Override
-        public void itemStateChanged(ItemEvent item) {
-            Constant.defaultTypeAlgorithm = item.getItem().toString();
+        CategoryPlot plot = chart.getCategoryPlot();
 
-            if (!Constant.defaultTypeAlgorithm.isEmpty()) {
-                renderGraph(Constant.defaultTypeAlgorithm);
-            } else {
-                renderDefaultGraph();
+        DateAxis axis = (DateAxis) plot.getRangeAxis();
+
+        GanttRenderer ganttRenderer = (GanttRenderer) plot.getRenderer();
+        IntervalCategoryToolTipGenerator tooltipGenerator = new IntervalCategoryToolTipGenerator() {
+            @Override
+            public String generateToolTip(CategoryDataset dataset, int row, int column) {
+                String s = super.generateToolTip(dataset, row, column);
+                String[] split = s.split(" = ");
+                split = split[1].split("-");
+
+                return "From " + split[0] + "(ms) to " + split[1] + "(ms)"; //To change body of generated methods, choose Tools | Templates.
             }
-        }
+
+        };
+        ganttRenderer.setBaseToolTipGenerator(tooltipGenerator);
+        axis.setDateFormatOverride(new SimpleDateFormat("S")); // second
+        return chart;
+    }
+
+    // không hiển thị gì hết
+    public static void renderDefaultGraph() {
+        Constant.centerPanel.removeAll();
+        Constant.centerPanel.validate();
+        Constant.centerPanel.repaint();
     }
 
     public static void updateTable() {
@@ -188,5 +129,39 @@ public class ProcessTablePanelAction {
                 Constant.arrayListProcess.get(i).getBurstTime()});
         }
         Constant.defaultTableModel.fireTableDataChanged();
+    }
+
+    // Tạo dataset
+    public static GanttCategoryDataset createDataset(ArrayList<ProcessResult> arr) {
+        if (arr == null) {
+            return null;
+        }
+
+        HashMap<String, ArrayList<ProcessResult>> temp = new HashMap<>();
+
+        final TaskSeriesCollection collection = new TaskSeriesCollection();
+
+        for (int i = 0; i < arr.size(); i++) {
+            if (!temp.containsKey(arr.get(i).getProcessName())) {
+                ArrayList<ProcessResult> t = new ArrayList<>();
+                t.add(arr.get(i));
+                temp.put(arr.get(i).getProcessName(), t);
+            } else {
+                ArrayList<ProcessResult> t = temp.get(arr.get(i).getProcessName());
+                t.add(arr.get(i));
+                temp.put(arr.get(i).getProcessName(), t);
+            }
+        }
+
+        for (String key : temp.keySet()) {
+            TaskSeries ts = new TaskSeries(key);
+            int count = 0;
+            ArrayList<ProcessResult> t = temp.get(key);
+            for (int i = 0; i < t.size(); i++) {
+                ts.add(new Task(key + count++, new SimpleTimePeriod(t.get(i).getProcessStart(), t.get(i).getProcessEnd())));
+            }
+            collection.add(ts);
+        }
+        return collection;
     }
 }
