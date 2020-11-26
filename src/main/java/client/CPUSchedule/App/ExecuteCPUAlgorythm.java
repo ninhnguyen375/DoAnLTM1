@@ -13,7 +13,6 @@ import client.CPUSchedule.Algorithms.RoundRobin;
 import client.CPUSchedule.Algorithms.ShortestJobFirst;
 import client.CPUSchedule.Algorithms.ShortestRemainingTime;
 import client.CPUSchedule.Constant.Constant;
-import client.CPUSchedule.DTO.ProcessResult;
 import client.CPUSchedule.DTO.Row;
 import com.google.gson.Gson;
 import java.io.IOException;
