@@ -5,7 +5,6 @@
  */
 package client.CPUSchedule.App;
 
-import client.CPUSchedule.Algorithms.CPUScheduler;
 import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
 import client.CPUSchedule.Control.ProcessTablePanelAction;
@@ -46,7 +45,9 @@ public class EastPanel_AddProcessPanel extends JPanel {
     public static JLabel labelProcessName;
     public static JLabel labelProcessTime;
     public static JLabel labelProcessTimeStart;
+    public static JLabel labelPriority;
 
+    public static JTextField textFieldPriority;
     public static JTextField textFieldProcessName;
     public static JTextField textFieldProcessTime;
     public static JTextField textFieldProcessTimeStart;
@@ -68,8 +69,12 @@ public class EastPanel_AddProcessPanel extends JPanel {
         labelProcessName = new JLabel("Process Name");
         labelProcessTime = new JLabel("Process Time (ms)");
         labelProcessTimeStart = new JLabel("Process Time Start (ms)");
+        labelPriority = new JLabel("Priority");
 
+        textFieldPriority = new JTextField(200);
+//        textFieldPriority.setEnabled(false);
         textFieldProcessName = new JTextField(200);
+
 //        textFieldProcessName.setText(Constant.prefixNameProcess + String.valueOf(Constant.startNumberProcess)); // For Process auto increament
 //        textFieldProcessName.setEditable(false);
         textFieldProcessName.setText(Constant.defaultStartProcessName);
@@ -87,6 +92,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
                 String processName = Constant.textFieldProcessName.getText();
                 String processTime = Constant.textFieldProcessTime.getText();
                 String processTimeStart = Constant.textFieldProcessTimeStart.getText();
+                String processPriority = textFieldPriority.getText();
 
                 if (processName.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Please enter Process Name");
@@ -96,77 +102,96 @@ public class EastPanel_AddProcessPanel extends JPanel {
                     JOptionPane.showMessageDialog(null, "Please enter Process Time Start");
 
                 } else {
-                    Row row = new Row(processName,
-                            Integer.parseInt(processTimeStart),
-                            Integer.parseInt(processTime)
-                    );
-
-                    int index = -1;
-                    for (int i = 0; i < Constant.arrayListProcess.size(); i++) {
-                        if (row.getProcessName().equals(Constant.arrayListProcess.get(i).getProcessName())) {
-                            index = i;
-                            break;
+                    Row row = null;
+                    boolean flag = true;
+                    try {
+                        if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
+                            row = new Row(processName,
+                                    Integer.parseInt(processTimeStart),
+                                    Integer.parseInt(processTime),
+                                    Integer.parseInt(processPriority)
+                            );
                         } else {
-                            continue;
+                            row = new Row(processName,
+                                    Integer.parseInt(processTimeStart),
+                                    Integer.parseInt(processTime)
+                            );
                         }
+                    } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(null, "process has value which is not a number", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        flag = false;
                     }
 
-                    if (index != -1) { // nếu bị trùng
-                        int option = JOptionPane.showConfirmDialog(null, "Your process is duplicated. Do you want to rewrite it?", "Warning", JOptionPane.YES_NO_OPTION);
-                        // Ok 0
-                        // No 1
-                        // Close -1
+                    if (flag) { // nếu mà không bị throw NumberFormatException
+                        int index = -1;
+                        for (int i = 0; i < Constant.arrayListProcess.size(); i++) {
+                            if (row.getProcessName().equals(Constant.arrayListProcess.get(i).getProcessName())) {
+                                index = i;
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
 
-                        System.out.println(option);
+                        if (index != -1) { // nếu bị trùng
+                            int option = JOptionPane.showConfirmDialog(null, "Your process is duplicated. Do you want to rewrite it?", "Warning", JOptionPane.YES_NO_OPTION);
+                            // mún override cái bị trùng hay không?
+                            // Ok 0
+                            // No 1
+                            // Close -1
 
-                        if (option == -1) {
-                            // keep it and do nothing
-                        } else if (option == 0) {
-                            // update
-                            Constant.arrayListProcess.set(index, row);
+                            System.out.println(option);
 
-                            Constant.textFieldProcessName.setText("");
-                            Constant.textFieldProcessTime.setText("");
-                            Constant.textFieldProcessTimeStart.setText("");
+                            if (option == -1) {
+                                // keep it and do nothing
+                            } else if (option == 0) {
+                                // đồng ý override bị trùng
+                                Constant.arrayListProcess.set(index, row);
+
+//                            Constant.textFieldProcessName.setText("");
+//                            Constant.textFieldProcessTime.setText("");
+//                            Constant.textFieldProcessTimeStart.setText("");
+                                try {
+                                    Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
+                                    Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
+                                    ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);
+                                    // Việc Update Table dưới client
+                                    updateTable();
+                                    // Update Graph, việc vẽ grap sẽ do server trả kết quả về
+                                    renderGraph(result);
+                                } catch (Exception ex) {
+                                    Logger.getLogger(ProcessTablePanelAction.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            } else if (option == 1) {
+                                // keep it and do nothing
+                            }
+                        } else { // không bị trùng tên process
+                            Constant.arrayListProcess.add(row);
+                            // thêm xong làm trống input
+                            // Constant.textFieldProcessName.setText("");
+                            // Constant.textFieldProcessTime.setText("");
+                            // Constant.textFieldProcessTimeStart.setText("");
 
                             try {
                                 Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
                                 Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
-                                ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);
+                                String s = Client.socketReadLine();
+                                System.out.println(s);
+                                ResultAfterExecuteAlgorithm result = new Gson().fromJson(s, ResultAfterExecuteAlgorithm.class);
+                                System.out.println("result " + result);
+                                // Việc Update Table Sẽ được server xử kết quả sau đó render ra
+                                // Option 1 to update
                                 // Việc Update Table dưới client
-                                updateTable();
+                                // Option 2 to update
+                                // Constant.defaultTableModel.addRow(new Object[]{processName, processTime, processTimeStart});
+                                // Constant.defaultTableModel.fireTableDataChanged();
                                 // Update Graph, việc vẽ grap sẽ do server trả kết quả về
+                                updateTable();
                                 renderGraph(result);
                             } catch (Exception ex) {
                                 Logger.getLogger(ProcessTablePanelAction.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        } else if (option == 1) {
-                            // keep it and do nothing
-                        }
-                    } else { // không bị trùng tên process
-                        Constant.arrayListProcess.add(row);
-                        Constant.textFieldProcessName.setText("");
-                        Constant.textFieldProcessTime.setText("");
-                        Constant.textFieldProcessTimeStart.setText("");
-
-                        try {
-                            Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
-                            Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
-                            String s = Client.socketReadLine();
-                            System.out.println(s);
-                            ResultAfterExecuteAlgorithm result = new Gson().fromJson(s, ResultAfterExecuteAlgorithm.class);
-                            System.out.println("result " + result);
-                            // Việc Update Table Sẽ được server xử kết quả sau đó render ra
-                            // Option 1 to update
-                            // Việc Update Table dưới client
-                            // Option 2 to update
-                            // Constant.defaultTableModel.addRow(new Object[]{processName, processTime, processTimeStart});
-                            // Constant.defaultTableModel.fireTableDataChanged();
-                            // Update Graph, việc vẽ grap sẽ do server trả kết quả về
-                            updateTable();
-                            renderGraph(result);
-                        } catch (Exception ex) {
-                            Logger.getLogger(ProcessTablePanelAction.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
@@ -233,13 +258,25 @@ public class EastPanel_AddProcessPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = 4;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        add(labelPriority, gbc);
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        add(textFieldPriority, gbc);
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
         gbc.gridwidth = 2;
         gbc.insets = new Insets(5, 5, 5, 5);
         add(buttonAddProcess, gbc);
     }
 
     // cái này là upload file lên
-    private void handleClickAddProcess() {
+    private int handleClickAddProcess() {
         JFileChooser fileChooser = new JFileChooser(new File(Constant.testFilesPath));
 
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -251,17 +288,28 @@ public class EastPanel_AddProcessPanel extends JPanel {
 
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine();
-                    Pattern p = Pattern.compile("^\\w+ \\d \\d$");
+                    Pattern p = Pattern.compile("^\\w+ \\d \\d \\d$");
                     Matcher matcher = p.matcher(line);
 
                     if (matcher.find()) {
                         String[] values = line.split(" ");
 
                         String processName = values[0];
-                        int arrivalTime = Integer.parseInt(values[1]);
-                        int burstTime = Integer.parseInt(values[2]);
+                        int arrivalTime = 0;
+                        int burstTime = 0;
+                        int priority = 0;
 
-                        arr.add(new Row(processName, arrivalTime, burstTime));
+                        try {
+                            arrivalTime = Integer.parseInt(values[1]);
+                            burstTime = Integer.parseInt(values[2]);
+                            priority = Integer.parseInt(values[3]);
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(null, "process has value which is not a number", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return -1; // thoát ra và không cần xử lý
+                        }
+
+                        arr.add(new Row(processName, arrivalTime, burstTime, priority));
                     } else {
                         JOptionPane.showMessageDialog(null, "Wrong content file", "Error File", JOptionPane.ERROR_MESSAGE);
                         break;
@@ -281,6 +329,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
                         }
                     }
 
+                    // nếu mà đã được add rồi thì update lại giá trị của nó
                     if (found == -1) {
                         // Add new
                         Constant.arrayListProcess.add(arr.get(i));
@@ -305,8 +354,10 @@ public class EastPanel_AddProcessPanel extends JPanel {
             } catch (Exception ex) {
                 Logger.getLogger(EastPanel_AddProcessPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return 1;
         } else {
             System.out.println("Canceled by user");
+            return -1;
         }
     }
 }

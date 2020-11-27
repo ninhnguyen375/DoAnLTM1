@@ -5,8 +5,8 @@
  */
 package client.CPUSchedule.App;
 
-import client.CPUSchedule.Algorithms.CPUScheduler;
 import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
+import static client.CPUSchedule.App.EastPanel_AddProcessPanel.textFieldPriority;
 import client.CPUSchedule.Constant.Constant;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderDefaultGraph;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderGraph;
@@ -43,11 +43,11 @@ public class EastPanel_ChooseTypeAlgorithmPanel extends JPanel {
         Constant.defaultTypeAlgorithm = "FCFS";
 
         typeAlgorithmArr.addItem("FCFS");
-        typeAlgorithmArr.addItem("SJF");
+        typeAlgorithmArr.addItem("SJF"); // không độc quyền 1 tiến trình sẽ chạy hết
+        typeAlgorithmArr.addItem("SRT"); // độc quyền của SJF. Tới giây của 1 tiến trình nào đó thì phải bị dừng lại
         typeAlgorithmArr.addItem("RR");
-        typeAlgorithmArr.addItem("PP");
-        typeAlgorithmArr.addItem("PNP");
-        typeAlgorithmArr.addItem("SRT");
+        typeAlgorithmArr.addItem("PP");  // độc quyền
+        typeAlgorithmArr.addItem("PNP"); // không độc quyền
         typeAlgorithmArr.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent item) {
@@ -55,6 +55,12 @@ public class EastPanel_ChooseTypeAlgorithmPanel extends JPanel {
 
                 if (!Constant.defaultTypeAlgorithm.isEmpty()) {
                     try {
+                        System.out.println(Constant.defaultTypeAlgorithm);
+//                        if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
+//                            textFieldPriority.setEditable(true);
+//                        } else {
+//                            textFieldPriority.setEditable(false);
+//                        }
                         Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
                         Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
                         ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);

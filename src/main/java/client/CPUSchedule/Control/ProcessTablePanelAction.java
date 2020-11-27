@@ -126,7 +126,7 @@ public class ProcessTablePanelAction {
         for (int i = 0; i < Constant.arrayListProcess.size(); i++) {
             Constant.defaultTableModel.addRow(new Object[]{Constant.arrayListProcess.get(i).getProcessName(),
                 Constant.arrayListProcess.get(i).getArrivalTime(),
-                Constant.arrayListProcess.get(i).getBurstTime()});
+                Constant.arrayListProcess.get(i).getBurstTime(), Constant.arrayListProcess.get(i).getPriorityLevel()});
         }
         Constant.defaultTableModel.fireTableDataChanged();
     }
