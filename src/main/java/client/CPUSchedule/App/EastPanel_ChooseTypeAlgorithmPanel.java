@@ -6,7 +6,6 @@
 package client.CPUSchedule.App;
 
 import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
-import static client.CPUSchedule.App.EastPanel_AddProcessPanel.textFieldPriority;
 import client.CPUSchedule.Constant.Constant;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderDefaultGraph;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderGraph;
@@ -56,11 +55,12 @@ public class EastPanel_ChooseTypeAlgorithmPanel extends JPanel {
                 if (!Constant.defaultTypeAlgorithm.isEmpty()) {
                     try {
                         System.out.println(Constant.defaultTypeAlgorithm);
-//                        if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
-//                            textFieldPriority.setEditable(true);
-//                        } else {
-//                            textFieldPriority.setEditable(false);
-//                        }
+                        if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
+                            System.out.println("thuat toan " + Constant.defaultTypeAlgorithm);
+                            EastPanel_AddProcessPanel.textFieldPriority.setEnabled(true);
+                        } else {
+                            EastPanel_AddProcessPanel.textFieldPriority.setEnabled(false);
+                        }
                         Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
                         Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
                         ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);

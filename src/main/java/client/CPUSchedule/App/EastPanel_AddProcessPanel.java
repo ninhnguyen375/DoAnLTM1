@@ -72,7 +72,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
         labelPriority = new JLabel("Priority");
 
         textFieldPriority = new JTextField(200);
-//        textFieldPriority.setEnabled(false);
+        textFieldPriority.setEnabled(false);
         textFieldProcessName = new JTextField(200);
 
 //        textFieldProcessName.setText(Constant.prefixNameProcess + String.valueOf(Constant.startNumberProcess)); // For Process auto increament
@@ -312,7 +312,7 @@ public class EastPanel_AddProcessPanel extends JPanel {
                         arr.add(new Row(processName, arrivalTime, burstTime, priority));
                     } else {
                         JOptionPane.showMessageDialog(null, "Wrong content file", "Error File", JOptionPane.ERROR_MESSAGE);
-                        break;
+                        return -1;
                     }
                 }
 
