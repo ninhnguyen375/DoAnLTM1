@@ -370,6 +370,7 @@ public class MainDijkstra extends JPanel {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Not have any path");
+            this.path = this.emptyPath;
             System.out.println(ex);
         }
     }
