@@ -185,9 +185,9 @@ public class MainDijkstra extends JPanel {
         panel.paint(g2);
         try {
             ImageIO.write(image, "png", new File(pathname));
-            System.out.println("Panel saved as Image.");
+            JOptionPane.showMessageDialog(null, "Saved.");
         } catch (IOException e) {
-            System.out.println("Make image fail");
+            JOptionPane.showMessageDialog(null, "Make image fail");
             System.out.println(e);
         }
     }
@@ -195,13 +195,15 @@ public class MainDijkstra extends JPanel {
     private void handleClickExportImage() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Specify a file to save");
-
+        chooser.setSelectedFile(new File("fileToSave.png"));
+        
         if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             makePanelImage(
                     nodeGraphPanel,
                     Constant.nodeGraphWidth,
                     Constant.mainHeight,
                     chooser.getSelectedFile().getPath());
+            
         }
     }
 

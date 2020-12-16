@@ -2,7 +2,7 @@ node {
     size: 26px, 26px;
     shape: circle;
     fill-color: black;
-    text-color: white; 
+    text-color: gray; 
     text-style: bold;
     text-offset: 1px, -3px;
     text-size: 15;
