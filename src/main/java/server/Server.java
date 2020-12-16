@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 public class Server {
 
     public static int port = 1234;
-    public static int numThread = 2;
+    public static int numThread = 3;
     private static ServerSocket server = null;
 
     public static void main(String[] args) throws IOException {

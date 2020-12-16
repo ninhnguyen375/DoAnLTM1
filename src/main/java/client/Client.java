@@ -29,6 +29,7 @@ public class Client {
     public static DataInputStream in;
     BufferedReader stdIn = null;
     private final int keySize = 2048;
+    public static int port = 1234;
 
     // client keys
     public static PublicKey clientPublicKey;
@@ -38,7 +39,6 @@ public class Client {
     public static PublicKey serverPublicKey;
 
     public Client(String address, int port) throws Exception {
-
         socket = new Socket(address, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
@@ -156,6 +156,13 @@ public class Client {
     }
 
     public static void main(String args[]) throws Exception {
-        Client client = new Client("127.0.0.1", 1234);
+        // Set default ui like current OS
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        
+        ChooseServer form = new ChooseServer();
+        
+        form.setLocationRelativeTo(null);
+        form.pack();
+        form.setVisible(true);
     }
 }

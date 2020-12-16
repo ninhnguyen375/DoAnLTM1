@@ -1,8 +1,6 @@
 package server;
 
 import client.CPUSchedule.App.ExecuteCPUAlgorythm;
-import client.CPUSchedule.DTO.ProcessResult;
-import client.CPUSchedule.DTO.Row;
 import server.dijsktra.*;
 import com.google.gson.Gson;
 import java.io.DataInputStream;
@@ -20,7 +18,6 @@ import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import javax.crypto.Cipher;
@@ -135,6 +132,7 @@ public class RunnableApp implements Runnable {
     @Override
     @SuppressWarnings("ConvertToTryWithResources")
     public void run() {
+        System.out.println("New Client Connected");
         try {
             while (true) {
                 String input = socketReadLine();

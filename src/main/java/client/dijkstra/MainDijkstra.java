@@ -21,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -61,6 +63,8 @@ public class MainDijkstra extends JPanel {
     public JButton findPathButton = new JButton("Find shortest path");
     // Export image button
     public JButton exportImageButton = new JButton("Export to Image");
+    // Clear graph
+    public JButton clearGraphButton = new JButton("Clear Graph");
 
     public MainDijkstra() {
         init();
@@ -146,6 +150,7 @@ public class MainDijkstra extends JPanel {
         rightSidePanel.add(panelUploadFile);
         rightSidePanel.add(panelFindPath);
         rightSidePanel.add(exportImageButton);
+        rightSidePanel.add(clearGraphButton);
 
         // Events
         enterButton.addActionListener((e) -> {
@@ -159,6 +164,9 @@ public class MainDijkstra extends JPanel {
         });
         exportImageButton.addActionListener((e) -> {
             handleClickExportImage();
+        });
+        clearGraphButton.addActionListener((e) -> {
+            handleClearGraphClick();
         });
         // --- RIGHT SIDE >>END
 
@@ -200,6 +208,12 @@ public class MainDijkstra extends JPanel {
     private MEdge validateEdgeValue(String src, String dest, String weight) {
         if (src.isBlank() || dest.isBlank() || weight.isBlank()) {
             JOptionPane.showMessageDialog(null, "Please filled the form.");
+            return null;
+        }
+
+        // same value
+        if (src.equals(dest)) {
+            JOptionPane.showMessageDialog(null, "Can not put same nodes.");
             return null;
         }
 
@@ -377,8 +391,23 @@ public class MainDijkstra extends JPanel {
 
     private void regenerateGraph() {
         nodeGraphPanel.removeAll();
+
         NodeGraph newNodeGraph = new NodeGraph(path, edges);
         nodeGraphPanel.add(newNodeGraph);
+
+        this.validate();
+    }
+
+    private void handleClearGraphClick() {
+        nodeGraphPanel.removeAll();
+
+        // empty path & edges
+        path = emptyPath;
+        edges = new ArrayList<>();
+
+        NodeGraph newNodeGraph = new NodeGraph(path, edges);
+        nodeGraphPanel.add(newNodeGraph);
+
         this.validate();
     }
 }
