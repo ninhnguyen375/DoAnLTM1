@@ -27,7 +27,7 @@ public class Constant {
 
     // For main panel contains all child components
     public static int WIDTH_PANEL = 1000;
-    public static int HIGHT_PANEL = 400;
+    public static int HIGHT_PANEL = 600;
     public static ArrayList<Row> arrayListProcess = null;
     public static JPanel centerPanel = null;
     public static JPanel eastPanel = null;

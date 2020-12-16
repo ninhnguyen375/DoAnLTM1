@@ -374,9 +374,9 @@ public class MainDijkstra extends JPanel {
             String result = Client.socketReadLine();
 
             if (result.contains("error")) {
+                JOptionPane.showMessageDialog(null, result);
                 this.path = this.emptyPath;
                 regenerateGraph();
-                JOptionPane.showMessageDialog(null, result);
             } else {
                 String[] shortestPath = gson.fromJson(result, String[].class);
                 this.path = shortestPath;
@@ -385,6 +385,7 @@ public class MainDijkstra extends JPanel {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Not have any path");
             this.path = this.emptyPath;
+            regenerateGraph();
             System.out.println(ex);
         }
     }
