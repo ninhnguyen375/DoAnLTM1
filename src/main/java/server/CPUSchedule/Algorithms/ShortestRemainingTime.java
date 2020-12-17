@@ -1,14 +1,15 @@
-package client.CPUSchedule.Algorithms;
+package server.CPUSchedule.Algorithms;
 
 
-import client.CPUSchedule.DTO.Row;
+import server.CPUSchedule.DTO.Event;
+import server.CPUSchedule.DTO.Row;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PriorityPreemptive extends CPUScheduler
+public class ShortestRemainingTime extends CPUScheduler
 {
     @Override
     public void process()
@@ -44,11 +45,11 @@ public class PriorityPreemptive extends CPUScheduler
             }
             
             Collections.sort(availableRows, (Object o1, Object o2) -> {
-                if (((Row) o1).getPriorityLevel()== ((Row) o2).getPriorityLevel())
+                if (((Row) o1).getBurstTime() == ((Row) o2).getBurstTime())
                 {
                     return 0;
                 }
-                else if (((Row) o1).getPriorityLevel() < ((Row) o2).getPriorityLevel())
+                else if (((Row) o1).getBurstTime() < ((Row) o2).getBurstTime())
                 {
                     return -1;
                 }

@@ -5,7 +5,7 @@
  */
 package client.CPUSchedule.App;
 
-import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
+import client.CPUSchedule.DTO.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderGraph;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.updateTable;
@@ -25,7 +25,6 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

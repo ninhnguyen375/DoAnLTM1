@@ -3,22 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client.CPUSchedule.App;
+package server.CPUSchedule;
 
-import client.CPUSchedule.Algorithms.CPUScheduler;
-import client.CPUSchedule.Algorithms.FirstComeFirstServe;
-import client.CPUSchedule.Algorithms.PriorityNonPreemptive;
-import client.CPUSchedule.Algorithms.PriorityPreemptive;
-import client.CPUSchedule.Algorithms.RoundRobin;
-import client.CPUSchedule.Algorithms.ShortestJobFirst;
-import client.CPUSchedule.Algorithms.ShortestRemainingTime;
-import client.CPUSchedule.Constant.Constant;
-import client.CPUSchedule.DTO.ProcessResult;
-import client.CPUSchedule.DTO.Row;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import server.CPUSchedule.Algorithms.*;
+import server.CPUSchedule.DTO.Row;
 
 /**
  *
@@ -29,8 +21,8 @@ public class ExecuteCPUAlgorythm {
     private ArrayList<Row> arrayProcess;
     private String algorithmName;
 
-    public ExecuteCPUAlgorythm(String edges, String algorithmName) throws IOException {
-        applyEdgesFromJsonString(edges);
+    public ExecuteCPUAlgorythm(String arrayProcessString, String algorithmName) throws IOException {
+        applyArrayProcessFromJsonString(arrayProcessString);
         this.algorithmName = algorithmName;
     }
 
@@ -38,7 +30,7 @@ public class ExecuteCPUAlgorythm {
         // Implement
         CPUScheduler algorithm = null;
         if (algorithmName == null) {
-            algorithmName = Constant.defaultTypeAlgorithm;
+            algorithmName = "FCFS";
         }
         if (algorithmName.equals("FCFS")) {
             algorithm = new FirstComeFirstServe();
@@ -58,17 +50,18 @@ public class ExecuteCPUAlgorythm {
         }
 
         if (arrayProcess.size() > 0) {
-            // add tất cả process trong list vào
+            // add tất cả process trong list vào ham thuat toan
             for (int i = 0; i < arrayProcess.size(); i++) {
                 algorithm.add(arrayProcess.get(i));
             }
             // chạy hàm xử lý thuật toán
             algorithm.process();
         }
+        
         return algorithm;
     }
 
-    public void applyEdgesFromJsonString(String string) {
+    public void applyArrayProcessFromJsonString(String string) {
         Gson gson = new Gson();
         List list = gson.fromJson(string, ArrayList.class
         );
@@ -80,9 +73,6 @@ public class ExecuteCPUAlgorythm {
         }
 
         this.arrayProcess = arrayProcess;
-
-        System.out.println(
-                this.arrayProcess);
     }
 
     public ArrayList<Row> getArrayProcess() {

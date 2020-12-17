@@ -1,5 +1,4 @@
-package client.CPUSchedule.Algorithms;
-
+package client.CPUSchedule.DTO;
 
 public class Event
 {

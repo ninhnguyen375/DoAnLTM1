@@ -5,7 +5,7 @@
  */
 package client.CPUSchedule.App;
 
-import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
+import client.CPUSchedule.DTO.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderDefaultGraph;
 import static client.CPUSchedule.Control.ProcessTablePanelAction.renderGraph;
@@ -47,23 +47,33 @@ public class EastPanel_ChooseTypeAlgorithmPanel extends JPanel {
         typeAlgorithmArr.addItem("RR");
         typeAlgorithmArr.addItem("PP");  // độc quyền
         typeAlgorithmArr.addItem("PNP"); // không độc quyền
+
+        // on algorithm type change
         typeAlgorithmArr.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent item) {
+                // set global algorithm type
                 Constant.defaultTypeAlgorithm = item.getItem().toString();
 
+                // check empty
                 if (!Constant.defaultTypeAlgorithm.isEmpty()) {
                     try {
-                        System.out.println(Constant.defaultTypeAlgorithm);
+                        // active priority textbox
                         if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
-                            System.out.println("thuat toan " + Constant.defaultTypeAlgorithm);
                             EastPanel_AddProcessPanel.textFieldPriority.setEnabled(true);
                         } else {
                             EastPanel_AddProcessPanel.textFieldPriority.setEnabled(false);
                         }
+                        
+                        // send type and list process to server
                         Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);
                         Client.socketSend(new Gson().toJson(Constant.arrayListProcess));
-                        ResultAfterExecuteAlgorithm result = new Gson().fromJson(Client.socketReadLine(), ResultAfterExecuteAlgorithm.class);
+                        
+                        // receive result from server
+                        String stringResult = Client.socketReadLine();
+                        // parse string to object
+                        ResultAfterExecuteAlgorithm result = new Gson().fromJson(stringResult, ResultAfterExecuteAlgorithm.class);
+                        
                         renderGraph(result);
                     } catch (Exception ex) {
                         Logger.getLogger(EastPanel_ChooseTypeAlgorithmPanel.class.getName()).log(Level.SEVERE, null, ex);

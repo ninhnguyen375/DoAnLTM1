@@ -5,8 +5,8 @@
  */
 package client.CPUSchedule.Control;
 
-import client.CPUSchedule.Algorithms.Event;
-import client.CPUSchedule.Algorithms.ResultAfterExecuteAlgorithm;
+import client.CPUSchedule.DTO.Event;
+import client.CPUSchedule.DTO.ResultAfterExecuteAlgorithm;
 import client.CPUSchedule.Constant.Constant;
 import java.awt.Dimension;
 import org.jfree.chart.ChartPanel;

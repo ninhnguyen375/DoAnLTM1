@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client.CPUSchedule.Algorithms;
+package server.CPUSchedule.DTO;
 
-import client.CPUSchedule.DTO.Row;
+import server.CPUSchedule.DTO.Row;
 import java.util.ArrayList;
 
 /**

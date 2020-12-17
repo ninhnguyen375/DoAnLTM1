@@ -1,14 +1,14 @@
-package client.CPUSchedule.Algorithms;
+package server.CPUSchedule.Algorithms;
 
 
-import client.CPUSchedule.DTO.Row;
-import java.util.ArrayList;
+import server.CPUSchedule.DTO.Event;
+import server.CPUSchedule.DTO.Row;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShortestRemainingTime extends CPUScheduler
+public class RoundRobin extends CPUScheduler
 {
     @Override
     public void process()
@@ -30,59 +30,33 @@ public class ShortestRemainingTime extends CPUScheduler
         
         List<Row> rows = Utility.deepCopy(this.getRows());
         int time = rows.get(0).getArrivalTime();
+        int timeQuantum = this.getTimeQuantum();
         
         while (!rows.isEmpty())
         {
-            List<Row> availableRows = new ArrayList();
+            Row row = rows.get(0);
+            int bt = (row.getBurstTime() < timeQuantum ? row.getBurstTime() : timeQuantum);
+            this.getTimeline().add(new Event(row.getProcessName(), time, time + bt));
+            time += bt;
+            rows.remove(0);
             
-            for (Row row : rows)
+            if (row.getBurstTime() > timeQuantum)
             {
-                if (row.getArrivalTime() <= time)
-                {
-                    availableRows.add(row);
-                }
-            }
-            
-            Collections.sort(availableRows, (Object o1, Object o2) -> {
-                if (((Row) o1).getBurstTime() == ((Row) o2).getBurstTime())
-                {
-                    return 0;
-                }
-                else if (((Row) o1).getBurstTime() < ((Row) o2).getBurstTime())
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 1;
-                }
-            });
-            
-            Row row = availableRows.get(0);
-            this.getTimeline().add(new Event(row.getProcessName(), time, ++time));
-            row.setBurstTime(row.getBurstTime() - 1);
-            
-            if (row.getBurstTime() == 0)
-            {
+                row.setBurstTime(row.getBurstTime() - timeQuantum);
+                
                 for (int i = 0; i < rows.size(); i++)
                 {
-                    if (rows.get(i).getProcessName().equals(row.getProcessName()))
+                    if (rows.get(i).getArrivalTime() > time)
                     {
-                        rows.remove(i);
+                        rows.add(i, row);
+                        break;
+                    }
+                    else if (i == rows.size() - 1)
+                    {
+                        rows.add(row);
                         break;
                     }
                 }
-            }
-        }
-        
-        for (int i = this.getTimeline().size() - 1; i > 0; i--)
-        {
-            List<Event> timeline = this.getTimeline();
-            
-            if (timeline.get(i - 1).getProcessName().equals(timeline.get(i).getProcessName()))
-            {
-                timeline.get(i - 1).setFinishTime(timeline.get(i).getFinishTime());
-                timeline.remove(i);
             }
         }
         

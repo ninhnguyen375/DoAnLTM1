@@ -1,6 +1,6 @@
 package server;
 
-import client.CPUSchedule.App.ExecuteCPUAlgorythm;
+import server.CPUSchedule.ExecuteCPUAlgorythm;
 import server.dijsktra.*;
 import com.google.gson.Gson;
 import java.io.DataInputStream;

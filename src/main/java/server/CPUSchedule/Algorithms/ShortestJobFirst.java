@@ -1,12 +1,13 @@
-package client.CPUSchedule.Algorithms;
+package server.CPUSchedule.Algorithms;
 
 
-import client.CPUSchedule.DTO.Row;
+import server.CPUSchedule.DTO.Event;
+import server.CPUSchedule.DTO.Row;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PriorityNonPreemptive extends CPUScheduler
+public class ShortestJobFirst extends CPUScheduler
 {
     @Override
     public void process()
@@ -42,11 +43,11 @@ public class PriorityNonPreemptive extends CPUScheduler
             }
             
             Collections.sort(availableRows, (Object o1, Object o2) -> {
-                if (((Row) o1).getPriorityLevel()== ((Row) o2).getPriorityLevel())
+                if (((Row) o1).getBurstTime() == ((Row) o2).getBurstTime())
                 {
                     return 0;
                 }
-                else if (((Row) o1).getPriorityLevel() < ((Row) o2).getPriorityLevel())
+                else if (((Row) o1).getBurstTime() < ((Row) o2).getBurstTime())
                 {
                     return -1;
                 }

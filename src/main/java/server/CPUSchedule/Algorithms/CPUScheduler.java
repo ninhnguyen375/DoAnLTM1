@@ -1,7 +1,8 @@
-package client.CPUSchedule.Algorithms;
+package server.CPUSchedule.Algorithms;
 
 
-import client.CPUSchedule.DTO.Row;
+import server.CPUSchedule.DTO.Event;
+import server.CPUSchedule.DTO.Row;
 import java.util.ArrayList;
 import java.util.List;
 
