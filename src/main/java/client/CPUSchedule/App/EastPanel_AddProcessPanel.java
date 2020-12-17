@@ -104,12 +104,23 @@ public class EastPanel_AddProcessPanel extends JPanel {
                 boolean flag = true;
                 try {
                     if (Constant.defaultTypeAlgorithm.equals("PP") || Constant.defaultTypeAlgorithm.equals("PNP")) {
+                        if (Integer.parseInt(processTimeStart) < 0
+                                || Integer.parseInt(processTime) < 0
+                                || Integer.parseInt(processPriority) < 0) {
+                            JOptionPane.showMessageDialog(null, "Must be >= 0");
+                            return;
+                        }
                         row = new Row(processName,
                                 Integer.parseInt(processTimeStart),
                                 Integer.parseInt(processTime),
                                 Integer.parseInt(processPriority)
                         );
                     } else {
+                        if (Integer.parseInt(processTimeStart) < 0
+                                || Integer.parseInt(processTime) < 0) {
+                            JOptionPane.showMessageDialog(null, "Must be >= 0");
+                            return;
+                        }
                         row = new Row(processName,
                                 Integer.parseInt(processTimeStart),
                                 Integer.parseInt(processTime)
@@ -151,7 +162,6 @@ public class EastPanel_AddProcessPanel extends JPanel {
                             // Constant.textFieldProcessName.setText("");
                             // Constant.textFieldProcessTime.setText("");
                             // Constant.textFieldProcessTimeStart.setText("");
-                            
                             // call server and get result
                             try {
                                 Client.socketSend("get-algorythm-" + Constant.defaultTypeAlgorithm);

@@ -212,6 +212,8 @@ public class MainDijkstra extends JPanel {
             JOptionPane.showMessageDialog(null, "Please filled the form.");
             return null;
         }
+        
+        
 
         // same value
         if (src.equals(dest)) {
@@ -224,6 +226,11 @@ public class MainDijkstra extends JPanel {
             Integer.parseInt(weight);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Please input edge weight by a number");
+            return null;
+        }
+        
+        if (Integer.parseInt(weight) < 1) {
+            JOptionPane.showMessageDialog(null, "Must be >= 1.");
             return null;
         }
 
